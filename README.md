@@ -2,7 +2,9 @@
 
 A simple, user-friendly Streamlit application that allows you to download and combine Quran audio files for specific ayah (verse) ranges.
 
-**Live App:** [Open Streamlit App](https://placeholder-streamlit-app-url.streamlit.app) *(coming soon)*
+**Live App:** [Open Streamlit App](https://ayahs-audio-downloader.streamlit.app/)
+
+Docs (made by [DeepWiki](https://dev.to/fallon_jimmy/deepwiki-an-ai-guide-to-github-codebase-mastery-3p5m)): https://deepwiki.com/OdyAsh/ayahs-audio-downloader
 
 
 ## ✨ Features

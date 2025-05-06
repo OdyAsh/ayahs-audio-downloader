@@ -121,7 +121,7 @@ def download_ayah_audio(surah_num: int, ayah_num: int, reciter_id: str, output_d
         return file_path
         
     except Exception as e:
-        # If we get an error, try the fallback URL from everyayah.com
+        # If we get an error, try to retrieve the original URL from the API
         try:
             logger.warning(f"Error downloading audio from primary source: {e}")
             logger.info("Trying fallback URL...")

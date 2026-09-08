@@ -16,6 +16,7 @@ dependencies = [
     "streamlit>=1.20.0",
     "requests>=2.28.0",
     "pydub>=0.25.1",
+    "imageio-ffmpeg>=0.4.9",
 ]
 
 [project.optional-dependencies]

@@ -2,10 +2,11 @@
 Module for processing and concatenating Quran audio files.
 """
 
-import os
 from typing import List, Optional
 import logging
-from pydub import AudioSegment
+import os
+import subprocess
+import imageio_ffmpeg
 
 # Setup logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 def concatenate_audio_files(audio_files: List[str], output_file: str) -> Optional[str]:
     """
-    Concatenate multiple audio files into a single file.
+    Concatenate multiple audio files into a single file using imageio-ffmpeg.
     
     Args:
         audio_files: List of paths to audio files to concatenate
@@ -26,33 +27,40 @@ def concatenate_audio_files(audio_files: List[str], output_file: str) -> Optiona
     try:
         # Ensure output directory exists
         output_dir = os.path.dirname(output_file)
-        os.makedirs(output_dir, exist_ok=True)
+        if output_dir:
+            os.makedirs(output_dir, exist_ok=True)
         
         # Check if we have files to concatenate
         if not audio_files:
             logger.error("No audio files to concatenate")
             return None
         
-        # Load the first audio file
-        combined = AudioSegment.from_mp3(audio_files[0])
-        logger.info(f"Loaded first audio file: {audio_files[0]}")
+        # Create a temporary ffmpeg input list file for concatenation
+        list_file_path = os.path.join(output_dir if output_dir else ".", "file_list.txt")
+        with open(list_file_path, "w", encoding="utf-8") as f:
+            for file in audio_files:
+                abs_path = os.path.abspath(file)
+                f.write(f"file '{abs_path}'\n")
         
-        # Add the rest of the audio files
-        for audio_file in audio_files[1:]:
-            try:
-                sound = AudioSegment.from_mp3(audio_file)
-                combined += sound
-                logger.info(f"Added audio file: {audio_file}")
-            except Exception as e:
-                logger.error(f"Error processing file {audio_file}: {e}")
-                # Continue with other files if one fails
+        ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
+        cmd = [
+            ffmpeg_exe, "-y", "-f", "concat", "-safe", "0",
+            "-i", list_file_path, "-c", "copy", output_file
+        ]
         
-        # Export the combined audio file
-        combined.export(output_file, format="mp3")
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        
+        # Clean up temporary list file
+        if os.path.exists(list_file_path):
+            os.remove(list_file_path)
+        
+        if result.returncode != 0:
+            logger.error(f"FFmpeg error: {result.stderr}")
+            return None
+            
         logger.info(f"Successfully created concatenated audio file: {output_file}")
-        
         return output_file
-    
+        
     except Exception as e:
         logger.error(f"Error concatenating audio files: {e}")
         return None
@@ -86,7 +94,7 @@ def generate_output_filename(start_ayah: str, end_ayah: str, surah_name: str) ->
         filename = "".join(c for c in filename if c.isalnum() or c in ['-', '_', '.'])
         
         return filename
-    
+        
     except Exception as e:
         logger.error(f"Error generating output filename: {e}")
         # Fallback to a default filename

@@ -13,10 +13,10 @@ authors = [
     {name = "Your Name", email = "your.email@example.com"}
 ]
 dependencies = [
-    "imageio-ffmpeg>=0.4.9",
     "streamlit>=1.20.0",
     "requests>=2.28.0",
-    "pydub>=0.25.1",
+    # TODO later: I removed pydub, since we're now using imageio-ffmpeg, so TODO: run `uv sync` to update uv.lock file accordingly
+    "imageio-ffmpeg>=0.4.9",
 ]
 
 [project.optional-dependencies]
